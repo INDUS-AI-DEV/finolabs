@@ -15,7 +15,7 @@ Build
 2) npm run preview
 
 Notes
-- All nav links point to real sections: #how, #features, #insights, #integrations, #pricing, #demo, #signup, #contact
+- All nav links point to real sections: #how, #features, #insights, #integrations, #pricing, #demo, #signup
 - Pricing CTA buttons link to #contact
 - Demo and Signup sections are basic forms wired for UX only; connect to your backend or forms provider as needed.
 
