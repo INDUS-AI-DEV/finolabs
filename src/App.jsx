@@ -233,15 +233,15 @@ export default function FinolabsLoanRecoverySite() {
       <section id="logos" className="mx-auto max-w-6xl px-4">
         <div className="my-10 grid grid-cols-2 items-center gap-6 opacity-80 sm:grid-cols-6">
           {[
-            { name: 'Razorpay', slug: 'razorpay' },
+            { name: 'Razorpay', slug: 'razorpay', type: 'png' },
             { name: 'PayU', slug: 'payu' },
-            { name: 'Setu', slug: 'setu' },
-            { name: 'CIBIL', slug: 'cibil' },
+            { name: 'CIBIL', slug: 'cibil', type: 'png' },
             { name: 'Equifax', slug: 'equifax' },
             { name: 'Custom', slug: 'custom' },
+            { name: 'CRIF', slug: 'crif' },
           ].map((it, i) => (
-            <motion.div key={i} className="flex h-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-3" initial={{ opacity: 0, y: 6 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-              <LogoImg src={`/logos/${it.slug}.svg`} alt={`${it.name} logo`} fallback={<span className="text-xs text-white/60">{it.name}</span>} />
+            <motion.div key={i} className="flex h-12 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4" initial={{ opacity: 0, y: 6 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+              <LogoImg src={`/logos/${it.slug}.${it.type || 'svg'}`} alt={`${it.name} logo`} fallback={<span className="text-xs text-white/60">{it.name}</span>} />
             </motion.div>
           ))}
         </div>
@@ -344,15 +344,15 @@ export default function FinolabsLoanRecoverySite() {
         <SectionTitle title="Works with Your Existing Systems" kicker="Connect to CRMs, LOS, payment gateways, bureaus, and accounting." />
         <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {[
-            { name: "Razorpay", slug: 'razorpay' },
+            { name: "Razorpay", slug: 'razorpay', type: 'png' },
             { name: "PayU", slug: 'payu' },
-            { name: "Setu", slug: 'setu' },
-            { name: "CIBIL", slug: 'cibil' },
+            { name: "CIBIL", slug: 'cibil', type: 'png' },
             { name: "Equifax", slug: 'equifax' },
+            { name: "SETU", slug: 'setu', type: 'png' },
             { name: "Custom APIs", slug: 'custom' },
           ].map((it, i) => (
-            <motion.div key={i} className="flex items-center justify-center rounded-2xl border border-white/15 bg-white/5 px-4 py-6 text-sm text-white/60" initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-              <LogoImg src={`/logos/${it.slug}.svg`} alt={`${it.name} logo`} fallback={<span>{it.name}</span>} />
+            <motion.div key={i} className="flex h-16 items-center justify-center rounded-2xl border border-white/15 bg-white/5 px-4 py-6 text-sm text-white/60" initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+              <LogoImg src={`/logos/${it.slug}.${it.type || 'svg'}`} alt={`${it.name} logo`} fallback={<span className="text-xs">{it.name}</span>} large />
             </motion.div>
           ))}
         </div>
@@ -499,7 +499,7 @@ function FeatureCard({ icon, title, desc }) {
 
 function PriceCard({ name, price, period, features, cta, highlight, popular }) {
   return (
-    <Card className={"relative " + (popular ? "ring-2 ring-fuchsia-400" : "") }>
+    <Card className={"relative " + (popular ? "ring-2 ring-white/20" : "") }>
       {highlight && (
         <div className="absolute -top-3 left-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[11px] uppercase tracking-wider text-white/80">
           {highlight}
@@ -558,16 +558,39 @@ function TestimonialCard({ quote, name, title, logo }) {
 }
 
 // --- Asset helpers ----------------------------------------------------------
-function LogoImg({ src, alt, fallback, small = false }) {
+function LogoImg({ src, alt, fallback, small = false, large = false }) {
   const [err, setErr] = useState(false);
+  const [loading, setLoading] = useState(true);
+  
   if (err || !src) return fallback || null;
+  
+  const isPng = src.toLowerCase().includes('.png');
+  const isCibil = src.toLowerCase().includes('cibil');
+  const isSetu = src.toLowerCase().includes('setu');
+  
+  // Make CIBIL and SETU logos bigger
+  const sizeClass = (isCibil || isSetu) ? (large ? 'h-16' : 'h-10') : (large ? 'h-8' : small ? 'h-4' : 'h-6');
+  
   return (
-    <img
-      src={src}
-      alt={alt || ""}
-      onError={() => setErr(true)}
-      className={(small ? 'h-4 ' : 'h-5 ') + 'w-auto object-contain'}
-    />
+    <div className="relative flex items-center justify-center">
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="h-2 w-2 animate-pulse rounded-full bg-white/30"></div>
+        </div>
+      )}
+      <img
+        src={src}
+        alt={alt || ""}
+        onError={() => setErr(true)}
+        onLoad={() => setLoading(false)}
+        className={`${sizeClass} w-auto max-w-full object-contain transition-opacity duration-200 ${loading ? 'opacity-0' : 'opacity-100'} ${isPng ? 'filter brightness-0 invert' : ''}`}
+        style={{ 
+          maxHeight: (isCibil || isSetu) ? (large ? '64px' : '40px') : (large ? '32px' : small ? '16px' : '24px'),
+          maxWidth: (isCibil || isSetu) ? (large ? '200px' : '150px') : (large ? '120px' : small ? '60px' : '80px')
+        }}
+        loading="lazy"
+      />
+    </div>
   );
 }
 
