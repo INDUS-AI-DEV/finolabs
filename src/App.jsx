@@ -237,8 +237,8 @@ export default function FinolabsLoanRecoverySite() {
             { name: 'PayU', slug: 'payu' },
             { name: 'CIBIL', slug: 'cibil', type: 'png' },
             { name: 'Equifax', slug: 'equifax' },
+            { name: 'SETU', slug: 'setu', type: 'png' },
             { name: 'Custom', slug: 'custom' },
-            { name: 'CRIF', slug: 'crif' },
           ].map((it, i) => (
             <motion.div key={i} className="flex h-12 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4" initial={{ opacity: 0, y: 6 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
               <LogoImg src={`/logos/${it.slug}.${it.type || 'svg'}`} alt={`${it.name} logo`} fallback={<span className="text-xs text-white/60">{it.name}</span>} />
