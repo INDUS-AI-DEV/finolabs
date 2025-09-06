@@ -73,19 +73,40 @@ const SectionTitle = ({ eyebrow, title, kicker }) => (
 
 function Stat({ value, suffix = "", label }) {
   const [n, setN] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
+  
   useEffect(() => {
-    const start = performance.now();
-    const dur = 1200;
-    const tick = (t) => {
-      const p = Math.min(1, (t - start) / dur);
-      setN(Math.round(value * (0.2 + 0.8 * p)));
-      if (p < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  }, [value]);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !isVisible) {
+          setIsVisible(true);
+          const start = performance.now();
+          const dur = 2000; // Increased duration for smoother effect
+          const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3); // Easing function
+          
+          const tick = (t) => {
+            const p = Math.min(1, (t - start) / dur);
+            const easedP = easeOutCubic(p);
+            setN(Math.round(value * easedP));
+            if (p < 1) requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    
+    const element = document.getElementById(`stat-${label.replace(/\s+/g, '-').toLowerCase()}`);
+    if (element) observer.observe(element);
+    
+    return () => observer.disconnect();
+  }, [value, isVisible, label]);
+  
   return (
-    <div className="text-center">
-      <div className="text-3xl font-semibold sm:text-4xl">{n}{suffix}</div>
+    <div id={`stat-${label.replace(/\s+/g, '-').toLowerCase()}`} className="text-center">
+      <div className="text-3xl font-semibold sm:text-4xl transition-all duration-300 hover:scale-105">
+        {n}{suffix}
+      </div>
       <div className="mt-1 text-sm text-white/70">{label}</div>
     </div>
   );
@@ -133,7 +154,7 @@ export default function FinolabsLoanRecoverySite() {
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
             <LogoImg
-              src="/logo.svg"
+              src="/logos/finolabs.png"
               alt="Finolabs logo"
               fallback={
                 <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 shadow-lg">
@@ -155,16 +176,18 @@ export default function FinolabsLoanRecoverySite() {
       </header>
 
       {/* Hero */}
-      <section className="relative mx-auto max-w-6xl px-4 pt-10 sm:pt-16">
-        <div className="grid items-center gap-8 sm:grid-cols-2">
+      <section className="relative mx-auto max-w-6xl px-4 pt-4 sm:pt-6">
+        <div className="grid items-start gap-8 sm:grid-cols-2">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
-            <Pill>
-              <BadgeCheck className="h-3.5 w-3.5" /> RBI‑Compliant AI Collections
-            </Pill>
-            <h1 className="mt-4 text-balance text-4xl font-semibold leading-tight sm:text-6xl">
+            <div className="pt-3">
+              <Pill>
+                <BadgeCheck className="h-3.5 w-3.5" /> RBI‑Compliant AI Collections
+              </Pill>
+            </div>
+            <h1 className="mt-3 text-balance text-4xl font-semibold leading-tight sm:text-6xl">
               Recover Loans. Reduce NPAs. Empower Collections.
             </h1>
-            <p className="mt-5 text-pretty text-base text-white/70 sm:text-lg">
+            <p className="mt-3 text-pretty text-base text-white/70 sm:text-lg">
               AI‑powered Loan Recovery & Collections Platform to supercharge your recovery rates, automate outreach, and boost financial compliance.
             </p>
             <div className="mt-6 flex flex-col items-center justify-start gap-3 sm:flex-row">
@@ -177,7 +200,7 @@ export default function FinolabsLoanRecoverySite() {
           </motion.div>
 
           {/* Hero visual */}
-          <motion.div className="relative" initial={{ opacity: 0, scale: .98 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: .1 }}>
+          <motion.div className="relative pt-8" initial={{ opacity: 0, scale: .98 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: .1 }}>
             <Card className="relative overflow-hidden">
               <div className="absolute -right-10 -top-10 h-56 w-56 rounded-full bg-fuchsia-500/20 blur-[90px]"/>
               <div className="relative grid gap-4">
@@ -238,10 +261,10 @@ export default function FinolabsLoanRecoverySite() {
             { name: 'CIBIL', slug: 'cibil', type: 'png' },
             { name: 'Equifax', slug: 'equifax' },
             { name: 'SETU', slug: 'setu', type: 'png' },
-            { name: 'Custom', slug: 'custom' },
+            { name: 'Seeds Fincap', slug: 'seedsfincap', type: 'png' },
           ].map((it, i) => (
             <motion.div key={i} className="flex h-12 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4" initial={{ opacity: 0, y: 6 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-              <LogoImg src={`/logos/${it.slug}.${it.type || 'svg'}`} alt={`${it.name} logo`} fallback={<span className="text-xs text-white/60">{it.name}</span>} />
+              <LogoImg src={it.type === 'external' ? it.slug : `/logos/${it.slug}.${it.type || 'svg'}`} alt={`${it.name} logo`} fallback={<span className="text-xs text-white/60">{it.name}</span>} />
             </motion.div>
           ))}
         </div>
@@ -296,7 +319,17 @@ export default function FinolabsLoanRecoverySite() {
                       <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={{ background: "#111827", border: "1px solid rgba(255,255,255,.15)", borderRadius: 12, color: "white" }} />
+                  <Tooltip 
+                    contentStyle={{ 
+                      background: "#111827", 
+                      border: "1px solid rgba(255,255,255,.15)", 
+                      borderRadius: 12, 
+                      color: "white",
+                      transition: "all 0.2s ease"
+                    }}
+                    labelStyle={{ color: "#f3f4f6" }}
+                    itemStyle={{ color: "#ffffff" }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </motion.div>
@@ -349,10 +382,10 @@ export default function FinolabsLoanRecoverySite() {
             { name: "CIBIL", slug: 'cibil', type: 'png' },
             { name: "Equifax", slug: 'equifax' },
             { name: "SETU", slug: 'setu', type: 'png' },
-            { name: "Custom APIs", slug: 'custom' },
+            { name: "Seeds Fincap", slug: 'seedsfincap', type: 'png' },
           ].map((it, i) => (
             <motion.div key={i} className="flex h-16 items-center justify-center rounded-2xl border border-white/15 bg-white/5 px-4 py-6 text-sm text-white/60" initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-              <LogoImg src={`/logos/${it.slug}.${it.type || 'svg'}`} alt={`${it.name} logo`} fallback={<span className="text-xs">{it.name}</span>} large />
+              <LogoImg src={it.type === 'external' ? it.slug : `/logos/${it.slug}.${it.type || 'svg'}`} alt={`${it.name} logo`} fallback={<span className="text-xs">{it.name}</span>} large />
             </motion.div>
           ))}
         </div>
@@ -434,7 +467,100 @@ export default function FinolabsLoanRecoverySite() {
       {/* Signup target (for Start Free Trial) */}
       <section id="signup" className="mx-auto max-w-6xl px-4 pb-16">
         <Card>
-          <div className="text-sm text-white/70">Signup placeholder • Hook this up to your form or auth flow.</div>
+          <div className="mx-auto max-w-md">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-semibold text-white mb-2">Start Your Free Trial</h2>
+              <p className="text-white/70">Get started with Finolabs in minutes</p>
+            </div>
+            
+            <form className="space-y-6">
+              <div>
+                <label htmlFor="company" className="block text-sm font-medium text-white/80 mb-2">
+                  Company Name
+                </label>
+                <input
+                  type="text"
+                  id="company"
+                  name="company"
+                  required
+                  className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  placeholder="Enter your company name"
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-white/80 mb-2">
+                  Work Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  placeholder="your.email@company.com"
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="phone" className="block text-sm font-medium text-white/80 mb-2">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  required
+                  className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  placeholder="+91 98765 43210"
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="role" className="block text-sm font-medium text-white/80 mb-2">
+                  Role
+                </label>
+                <select
+                  id="role"
+                  name="role"
+                  required
+                  className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                >
+                  <option value="" className="bg-gray-800">Select your role</option>
+                  <option value="ceo" className="bg-gray-800">CEO/Founder</option>
+                  <option value="cto" className="bg-gray-800">CTO</option>
+                  <option value="cfo" className="bg-gray-800">CFO</option>
+                  <option value="collections-manager" className="bg-gray-800">Collections Manager</option>
+                  <option value="operations" className="bg-gray-800">Operations Head</option>
+                  <option value="other" className="bg-gray-800">Other</option>
+                </select>
+              </div>
+              
+              <div>
+                <label htmlFor="message" className="block text-sm font-medium text-white/80 mb-2">
+                  Tell us about your requirements (Optional)
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows={3}
+                  className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
+                  placeholder="What challenges are you facing with loan recovery?"
+                />
+              </div>
+              
+              <Button type="submit" className="w-full">
+                Start Free Trial
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              
+              <p className="text-xs text-white/60 text-center">
+                By signing up, you agree to our Terms of Service and Privacy Policy.
+                <br />
+                No credit card required. 14-day free trial.
+              </p>
+            </form>
+          </div>
         </Card>
       </section>
 
@@ -442,9 +568,15 @@ export default function FinolabsLoanRecoverySite() {
       <footer className="mx-auto max-w-6xl px-4 pb-10">
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
           <div className="flex items-center gap-3">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500">
-              <Building2 className="h-5 w-5" />
-            </div>
+            <LogoImg
+              src="/logos/finolabs.png"
+              alt="Finolabs logo"
+              fallback={
+                <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500">
+                  <Building2 className="h-5 w-5" />
+                </div>
+              }
+            />
             <span className="text-sm text-white/70">© {new Date().getFullYear()} Finolabs • RBI‑Compliant AI</span>
           </div>
           <div className="flex items-center gap-4 text-xs text-white/60">
@@ -475,12 +607,12 @@ function Metric({ label, value }) {
 
 function HowCard({ icon, title, desc, badge }) {
   return (
-    <Card>
-      <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-2 py-1 text-xs text-white/70">
+    <Card className="h-full flex flex-col">
+      <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-2 py-1 text-xs font-medium text-white/80 w-fit">
         {icon} <span>{badge}</span>
       </div>
-      <div className="text-white">{title}</div>
-      <div className="mt-1 text-sm text-white/70">{desc}</div>
+      <div className="text-lg font-semibold text-white mb-3 leading-tight">{title}</div>
+      <div className="text-sm text-white/70 leading-relaxed flex-grow">{desc}</div>
     </Card>
   );
 }
@@ -565,11 +697,15 @@ function LogoImg({ src, alt, fallback, small = false, large = false }) {
   if (err || !src) return fallback || null;
   
   const isPng = src.toLowerCase().includes('.png');
+  const isWebp = src.toLowerCase().includes('.webp');
   const isCibil = src.toLowerCase().includes('cibil');
   const isSetu = src.toLowerCase().includes('setu');
+  const isFinolabs = src.toLowerCase().includes('finolabs');
+  const isSeedsFincap = src.toLowerCase().includes('seedsfincap');
+  const isExternal = src.startsWith('http');
   
-  // Make CIBIL and SETU logos bigger
-  const sizeClass = (isCibil || isSetu) ? (large ? 'h-16' : 'h-10') : (large ? 'h-8' : small ? 'h-4' : 'h-6');
+  // Make CIBIL, SETU, and Finolabs logos bigger
+  const sizeClass = (isCibil || isSetu) ? (large ? 'h-16' : 'h-12') : isFinolabs ? (large ? 'h-20' : 'h-14') : (large ? 'h-8' : small ? 'h-4' : 'h-6');
   
   return (
     <div className="relative flex items-center justify-center">
@@ -583,10 +719,11 @@ function LogoImg({ src, alt, fallback, small = false, large = false }) {
         alt={alt || ""}
         onError={() => setErr(true)}
         onLoad={() => setLoading(false)}
-        className={`${sizeClass} w-auto max-w-full object-contain transition-opacity duration-200 ${loading ? 'opacity-0' : 'opacity-100'} ${isPng ? 'filter brightness-0 invert' : ''}`}
+        className={`${sizeClass} w-auto max-w-full object-contain transition-opacity duration-200 ${loading ? 'opacity-0' : 'opacity-100'} ${(isPng || isWebp) && !isSeedsFincap ? 'filter brightness-0 invert' : ''}`}
+        crossOrigin={isExternal ? 'anonymous' : undefined}
         style={{ 
-          maxHeight: (isCibil || isSetu) ? (large ? '64px' : '40px') : (large ? '32px' : small ? '16px' : '24px'),
-          maxWidth: (isCibil || isSetu) ? (large ? '200px' : '150px') : (large ? '120px' : small ? '60px' : '80px')
+          maxHeight: (isCibil || isSetu) ? (large ? '64px' : '48px') : isFinolabs ? (large ? '80px' : '56px') : (large ? '32px' : small ? '16px' : '24px'),
+          maxWidth: (isCibil || isSetu) ? (large ? '200px' : '180px') : isFinolabs ? (large ? '240px' : '200px') : (large ? '120px' : small ? '60px' : '80px')
         }}
         loading="lazy"
       />
