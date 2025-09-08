@@ -349,23 +349,51 @@ export default function FinolabsLoanRecoverySite() {
       <section className="mx-auto max-w-6xl px-4 py-14">
         <SectionTitle eyebrow="Engagement" title="Seamless Borrower Engagement" kicker="Handle complex recovery workflows across channels with one AI‑powered suite." />
         <div className="grid gap-6 lg:grid-cols-2">
-          <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            <Card>
-              <ul className="space-y-2 text-sm text-white/80">
-                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-400"/> Auto‑dialing + conversational bots</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-400"/> Personalized repayment reminders</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-400"/> Escalation alerts for overdue accounts</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-400"/> Borrower self‑service payment links</li>
+          <motion.div className="h-full" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <Card className="h-full flex flex-col">
+              <h3 className="text-sm font-medium text-white/90 mb-4">Key Features</h3>
+              <ul className="space-y-3 text-sm text-white/80 flex-grow">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 mt-0.5 flex-shrink-0 text-emerald-400"/>
+                  <span>Auto‑dialing + conversational bots that handle 80% of routine inquiries</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 mt-0.5 flex-shrink-0 text-emerald-400"/>
+                  <span>Personalized repayment reminders with dynamic scheduling</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 mt-0.5 flex-shrink-0 text-emerald-400"/>
+                  <span>Smart escalation alerts for overdue accounts with risk scoring</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 mt-0.5 flex-shrink-0 text-emerald-400"/>
+                  <span>Secure self-service payment portal with multiple payment options</span>
+                </li>
               </ul>
             </Card>
           </motion.div>
-          <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            <Card>
-              <div className="text-sm text-white/80">Communication Timeline</div>
-              <div className="mt-4 space-y-4">
-                <TimelineItem icon={<Phone className="h-4 w-4"/>} title="Auto‑call (Voicebot)" time="09:30" desc="Explained repayment options" />
-                <TimelineItem icon={<MessageSquare className="h-4 w-4"/>} title="WhatsApp follow‑up" time="10:00" desc="Shared payment link" />
-                <TimelineItem icon={<Mail className="h-4 w-4"/>} title="Email reminder" time="15:00" desc="Statement + receipt" />
+          <motion.div className="h-full" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <Card className="h-full flex flex-col">
+              <h3 className="text-sm font-medium text-white/90 mb-4">Communication Timeline</h3>
+              <div className="space-y-4 flex-grow">
+                <TimelineItem 
+                  icon={<Phone className="h-4 w-4 text-blue-400"/>} 
+                  title="Auto‑call (Voicebot)" 
+                  time="09:30" 
+                  desc="Automated voice call explaining repayment options and confirming payment intent." 
+                />
+                <TimelineItem 
+                  icon={<MessageSquare className="h-4 w-4 text-green-400"/>} 
+                  title="WhatsApp follow‑up" 
+                  time="10:00" 
+                  desc="Personalized payment link sent with secure one-click payment options." 
+                />
+                <TimelineItem 
+                  icon={<Mail className="h-4 w-4 text-amber-400"/>} 
+                  title="Email reminder" 
+                  time="15:00" 
+                  desc="Detailed payment statement with receipt and next steps for completion." 
+                />
               </div>
             </Card>
           </motion.div>
@@ -520,20 +548,14 @@ export default function FinolabsLoanRecoverySite() {
                 <label htmlFor="role" className="block text-sm font-medium text-white/80 mb-2">
                   Role
                 </label>
-                <select
+                <input
+                  type="text"
                   id="role"
                   name="role"
                   required
-                  className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                >
-                  <option value="" className="bg-gray-800">Select your role</option>
-                  <option value="ceo" className="bg-gray-800">CEO/Founder</option>
-                  <option value="cto" className="bg-gray-800">CTO</option>
-                  <option value="cfo" className="bg-gray-800">CFO</option>
-                  <option value="collections-manager" className="bg-gray-800">Collections Manager</option>
-                  <option value="operations" className="bg-gray-800">Operations Head</option>
-                  <option value="other" className="bg-gray-800">Other</option>
-                </select>
+                  className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  placeholder="Enter your role (e.g., CEO, Collections Manager)"
+                />
               </div>
               
               <div>
